@@ -53,6 +53,31 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   });
 });
 
+const sectionAnchors = Array.from(mainNav?.querySelectorAll('a[href^="#"]') || []);
+const trackedSections = sectionAnchors
+  .map((anchor) => document.querySelector(anchor.getAttribute("href")))
+  .filter(Boolean);
+
+if ("IntersectionObserver" in window && trackedSections.length && sectionAnchors.length) {
+  const navObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const id = `#${entry.target.id}`;
+        sectionAnchors.forEach((anchor) => {
+          anchor.classList.toggle("active", anchor.getAttribute("href") === id);
+        });
+      });
+    },
+    {
+      threshold: 0.35,
+      rootMargin: "-25% 0px -55% 0px",
+    }
+  );
+
+  trackedSections.forEach((section) => navObserver.observe(section));
+}
+
 function renderGallery() {
   const gallery = document.getElementById("shopGallery");
   if (!gallery) return;
